@@ -13,13 +13,11 @@ class User(db.Model):
     __tablename__ = 'User'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20))
     email = db.Column(db.String(20))
     password = db.Column(db.String(20))
 
 
-    def __init__(self, username, email, password):
-        self.username = username
+    def __init__(self, email, password):
         self.email = email
         self.password = generate_password_hash(password)
 
