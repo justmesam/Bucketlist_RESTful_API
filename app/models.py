@@ -1,20 +1,22 @@
 """
 The models module for the api
 """
-
-from app import db
+from . import db_
+import datetime
+import jwt
+from flask import current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-class User(db.Model):
+class User(db_.Model):
     """
     The main user model with the users attributes
     """
     __tablename__ = 'User'
 
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(20))
-    password = db.Column(db.String(20))
+    id = db_.Column(db_.Integer, primary_key=True)
+    email = db_.Column(db_.String(300))
+    password = db_.Column(db_.String(300))
 
 
     def __init__(self, email, password):
@@ -31,23 +33,60 @@ class User(db.Model):
         """
         Method used for adding the users oblect to session  and committing
         """
-        db.session.add(self)
-        db.session.commit()
+        db_.session.add(self)
+        db_.session.commit()
 
+    def token_encoding(self, _id):
+        """
+        Generates the token_
+        :return:string
+        """
+        try:
+            payload = {'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0,
+                                                                              hours=1),
+                       'iat': datetime.datetime.utcnow(),
+                       'sub': _id
+                      }
+            return jwt.encode(payload,
+                              current_app.config.get('SECRET_KEY'),
+                              algorithm='HS256')
+        except Exception as e:
+            return e
 
-class Bucketlist(db.Model):
+    @staticmethod
+    def token_decoding(token_):
+        """
+        Decode the token_
+        :param token_:
+        :return:string|integer:
+        """
+        try:
+            payload = jwt.decode(token_, current_app.config.get('SECRET_KEY'))
+        except jwt.ExpiredSignatureError:
+            return 'Signature is expired, try to login'
+        except jwt.InvalidTokenError:
+            return 'Invalid token, try to login'
+
+class Bucketlist(db_.Model):
     """
     The main Bucketlist model and its attributes
     """
     __tablename__ = 'Bucketlist'
 
-    pass
+    id = db_.Column(db_.Integer, primary_key=True)
+    title = db_.Column(db_.String(300))
+    intro = db_.Column(db_.String(500))
 
+    def __init__(self, title, intro):
+        self.title = title
+        self.intro = intro
 
-class Item(db.Model):
+"""
+class Item(db_.Model):
     """
     The main Item model and its attributes
     """
     __tablename__ = 'Item'
 
     pass
+'''
