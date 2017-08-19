@@ -1,11 +1,11 @@
 """
 The models module for the api
 """
-from . import db_
 import datetime
 import jwt
 from flask import current_app
 from werkzeug.security import generate_password_hash, check_password_hash
+from . import db_
 
 
 class User(db_.Model):
@@ -17,6 +17,9 @@ class User(db_.Model):
     id = db_.Column(db_.Integer, primary_key=True)
     email = db_.Column(db_.String(300))
     password = db_.Column(db_.String(300))
+    bucketlists = db_.relationship(
+        "Bucketlist", order_by="Bucketlist.id", cascade="all, delete-orphan"
+    )
 
 
     def __init__(self, email, password):
@@ -62,6 +65,10 @@ class User(db_.Model):
         """
         try:
             payload = jwt.decode(token_, current_app.config.get('SECRET_KEY'))
+            if LogoutDb.verify(token_):
+                return 'Please Login'
+            else:
+                return payload['sub']
         except jwt.ExpiredSignatureError:
             return 'Signature is expired, try to login'
         except jwt.InvalidTokenError:
@@ -76,12 +83,72 @@ class Bucketlist(db_.Model):
     id = db_.Column(db_.Integer, primary_key=True)
     title = db_.Column(db_.String(300))
     intro = db_.Column(db_.String(500))
+    owner = db_.Column(db_.Integer, db_.ForeignKey(User.id))
+    date_created = db_.Column(db_.DateTime, default=db_.func.current_timestamp())
+    date_updated = db_.Column(db_.DateTime, default=db_.func.current_timestamp(),
+                              onupdate=db_.func.current_timestamp())
 
-    def __init__(self, title, intro):
+    def __init__(self, title, intro, owner):
         self.title = title
         self.intro = intro
+        self.owner = owner
 
-"""
+    def save_bucketlist(self):
+        """
+        method used for saving the bucketlists to DATABASE
+        """
+        db_.session.add(self)
+        db_.session.commit()
+
+    @staticmethod
+    def query_all(owner_id):
+        """
+        method used for querying all the bucketlists from the database using an
+        owner id
+        """
+        all_bucketlists = Bucketlist.query.filter_by(owner=owner_id)
+        return all_bucketlists
+
+    def delete(self):
+        """
+        method used for deleting bucketlists
+        """
+        db_.session.delete(self)
+        db_.session.commit()
+
+
+class LogoutDb(db_.Model):
+    """
+    This model is used to store tokens
+    """
+
+    id = db_.Column(db_.Integer, primary_key=True)
+    token = db_.Column(db_.String(300))
+    logout_time = db_.Column(db_.DateTime, default=db_.func.current_timestamp())
+
+    def __init__(self, token):
+        self.token = token
+
+    def save_token(self):
+        """
+        method used for saving the token to database
+        """
+        db_.session.add(self)
+        db_.session.commit()
+
+    @staticmethod
+    def verify(token_):
+        """
+        checks if the token exists in the database where all logged out tokens are
+        """
+        response = LogoutDb.query.filter_by(token=str(token_)).first()
+        if response:
+            return True
+        else:
+            return False
+
+
+'''
 class Item(db_.Model):
     """
     The main Item model and its attributes
