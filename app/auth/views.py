@@ -1,8 +1,7 @@
-from flask import json
-from flask import request, make_response, jsonify
+from flask import request, make_response, jsonify, json
 from flask.views import MethodView
 from app.auth import auth_blueprint
-from app.models import User
+from app.models import User, LogoutDb
 
 
 class Register(MethodView):
@@ -10,8 +9,11 @@ class Register(MethodView):
     The user register class
     """
     def post(self):
-        data_ = json.loads(request.data.decode())
-        user = User.query.filter_by(email=data_['email']).first()
+        """
+        user register post method
+        """
+        data_ = request.get_json()
+        user = User.query.filter_by(email=data_.get('email')).first()
         if user is not None:
             response = {
                 'message' : 'Email exists'
@@ -34,8 +36,11 @@ class Login(MethodView):
     The user login class
     """
     def post(self):
-        data_ = json.loads(request.data.decode())
-        user = User.query.filter_by(email=data_['email']).first()
+        """
+        user login post Method
+        """
+        data_ = request.get_json()
+        user = User.query.filter_by(email=data_.get('email')).first()
         if user is None:
             response = {
                 'message' : 'You are not reqistered'
@@ -55,9 +60,50 @@ class Login(MethodView):
             }
             return make_response(jsonify(response)), 401
 
-auth_blueprint.add_url_rule('/auth/register',
+class Logout(MethodView):
+    """
+    The user logout class
+    """
+    def post(self):
+        """
+        user logout post method
+        """
+        auth_header = request.headers.get('Authorization')
+        auth_token = auth_header.split("Bearer ")[1]
+        if auth_token:
+            auth_data = User.token_decoding(auth_token)
+            if not isinstance(auth_data, str):
+                logout_token = LogoutDb(auth_token)
+                logout_token.save_token()
+                response = {
+                    'message' : 'You have successfuly logged out'
+                }
+                return make_response(jsonify(response)), 200
+            else:
+                response = {
+                    'message' : auth_data
+                }
+                return make_response(jsonify(response)), 401
+        else:
+            response = {
+                'message' : 'No valid token'
+            }
+            return make_response(jsonify(response)), 401
+
+class Reset(MethodView):
+    """
+    method used to reset a users password
+    """
+    def post(self):
+        pass
+
+
+auth_blueprint.add_url_rule('/register',
                             view_func=Register.as_view('register'),
                             methods=['POST'])
-auth_blueprint.add_url_rule('/auth/login',
+auth_blueprint.add_url_rule('/login',
                             view_func=Login.as_view('login'),
+                            methods=['POST'])
+auth_blueprint.add_url_rule('/logout',
+                            view_func=Logout.as_view('logout'),
                             methods=['POST'])
