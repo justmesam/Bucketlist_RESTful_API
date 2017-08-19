@@ -62,7 +62,7 @@ class TestCaseAuth(TestCase):
         self.assertTrue(result_login.status_code, 200)
         self.assertTrue(data['message'] == 'Successful Login')
 
-    def test_for_unregistered_user(self):
+    def test_for_login_unregistered_user(self):
         """
         Tests for an unregistered user
         """
