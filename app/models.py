@@ -87,6 +87,7 @@ class Bucketlist(db_.Model):
     date_created = db_.Column(db_.DateTime, default=db_.func.current_timestamp())
     date_updated = db_.Column(db_.DateTime, default=db_.func.current_timestamp(),
                               onupdate=db_.func.current_timestamp())
+    items = db_.relationship("Item", order_by="Item.id", cascade="all, delete-orphan")
 
     def __init__(self, title, intro, owner):
         self.title = title
@@ -148,12 +149,43 @@ class LogoutDb(db_.Model):
             return False
 
 
-'''
 class Item(db_.Model):
     """
     The main Item model and its attributes
     """
     __tablename__ = 'Item'
 
-    pass
-'''
+    id = db_.Column(db_.Integer, primary_key=True)
+    title = db_.Column(db_.String(300))
+    intro = db_.Column(db_.String(500))
+    date_created = db_.Column(db_.DateTime, default=db_.func.current_timestamp())
+    date_updated = db_.Column(db_.DateTime, default=db_.func.current_timestamp(),
+                              onupdate=db_.func.current_timestamp())
+    owner = db_.Column(db_.Integer, db_.ForeignKey(Bucketlist.id))
+
+    def __init__(self, title, intro, owner):
+        self.title = title
+        self.intro = intro
+        self.owner = owner
+
+    @staticmethod
+    def query_items(owner_id):
+        """
+        method used to query all items from the database using the owners id
+        """
+        all_items = Item.query.filter_by(owner=owner_id)
+        return all_items
+
+    def save_item(self):
+        """
+        method used to save items to the database
+        """
+        db_.session.add(self)
+        db_.session.commit()
+
+    def delete(self):
+        """
+        method used for deleting items
+        """
+        db_.session.delete(self)
+        db_.session.commit()
