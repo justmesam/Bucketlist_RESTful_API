@@ -11,5 +11,7 @@ db_.init_app(app)
 
 from app.auth import auth_blueprint
 from app.bucketlist import bucketlist_blueprint
+from app.item import item_blueprint
 app.register_blueprint(auth_blueprint, url_prefix='/api/v1.0/auth')
 app.register_blueprint(bucketlist_blueprint, url_prefix='/api/v1.0/bucketlists')
+app.register_blueprint(item_blueprint, url_prefix='/api/v1.0/bucketlists')
