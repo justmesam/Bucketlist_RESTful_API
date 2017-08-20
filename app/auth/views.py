@@ -1,4 +1,4 @@
-from flask import request, make_response, jsonify, json
+from flask import request, make_response, jsonify
 from flask.views import MethodView
 from app.auth import auth_blueprint
 from app.models import User, LogoutDb
