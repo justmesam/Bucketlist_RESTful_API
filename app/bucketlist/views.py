@@ -1,4 +1,4 @@
-from flask import make_response, request, json, jsonify
+from flask import make_response, request, jsonify
 from flask.views import MethodView
 from app.models import User, Bucketlist
 from app.bucketlist import bucketlist_blueprint
