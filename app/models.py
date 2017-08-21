@@ -107,7 +107,7 @@ class Bucketlist(db_.Model):
         method used for querying all the bucketlists from the database using an
         owner id
         """
-        all_bucketlists = Bucketlist.query.filter_by(owner=owner_id).all()
+        all_bucketlists = Bucketlist.query.filter_by(owner=owner_id)
         return all_bucketlists
 
     def delete(self):
@@ -117,6 +117,18 @@ class Bucketlist(db_.Model):
         db_.session.delete(self)
         db_.session.commit()
 
+    def serialize(self):
+        """
+        returns the object as dictionary
+        """
+        return {
+            'id' : self.id,
+            'owner' : self.owner,
+            'date_created' : self.date_created,
+            'date_updated' : self.date_updated,
+            'title' : self.title,
+            'intro' : self.intro
+        }
 
 class LogoutDb(db_.Model):
     """
@@ -189,3 +201,16 @@ class Item(db_.Model):
         """
         db_.session.delete(self)
         db_.session.commit()
+
+    def serialize(self):
+        """
+        returns the object as dictionary
+        """
+        return {
+            'id' : self.id,
+            'owner' : self.owner,
+            'date_created' : self.date_created,
+            'date_updated' : self.date_updated,
+            'title' : self.title,
+            'intro' : self.intro
+        }
