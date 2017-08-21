@@ -107,7 +107,7 @@ class Bucketlist(db_.Model):
         method used for querying all the bucketlists from the database using an
         owner id
         """
-        all_bucketlists = Bucketlist.query.filter_by(owner=owner_id)
+        all_bucketlists = Bucketlist.query.filter_by(owner=owner_id).all()
         return all_bucketlists
 
     def delete(self):
