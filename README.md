@@ -70,6 +70,11 @@ To get your build running just simply do:
        * `python manage.py db migrate`
        * `python manage.py db upgrade`
 
+
+
+* Install the requirements;
+   > pip install -r requirements.txt
+
 ##### Run It!
 
 To start the server just do;
