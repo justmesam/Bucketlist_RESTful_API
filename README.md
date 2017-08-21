@@ -53,7 +53,7 @@ To get your build running just simply do:
 * Create a virtualenv and an .env file to store the environment variables;
     * virtualenv ;
         > *  virtualenv venv            
-        
+
     * .env should have ;
         > source venv/bin/activate  
         export FLASK_APP="run.py"  
@@ -76,7 +76,7 @@ To start the server just do;
 > ./run.py
 
 The server will be running on    `http://127.0.0.1:5000/`   
-Now you can include an endpoin of choice;   
+Now you can include an endpoint of choice;   
 eg:   `http://127.0.0.1:5000/auth/register`
 
 
