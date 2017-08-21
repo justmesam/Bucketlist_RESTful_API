@@ -27,16 +27,8 @@ class itemApi(MethodView):
                     else:
                         all_items = []
                         for item in items:
-                            obj = {
-                                'id' : item.id,
-                                'owner' : item.owner,
-                                'date_created' : item.date_created,
-                                'date_updated' : item.date_updated,
-                                'title' : item.title,
-                                'intro' : item.intro
-                            }
-                            all_items.append(obj)
-                            return make_response(jsonify(all_items)), 200
+                            all_items.append(item.serialize())
+                        return make_response(jsonify(all_items)), 200
                 else:
                     item = Item.query.filter_by(id=_id).first()
                     if not item:
@@ -45,14 +37,7 @@ class itemApi(MethodView):
                         }
                         return make_response(jsonify(response)), 404
                     else:
-                        response = {
-                            'id' : item.id,
-                            'owner' : item.owner,
-                            'date_created' : item.date_created,
-                            'date_updated' : item.date_updated,
-                            'title' : item.title,
-                            'intro' : item.intro
-                        }
+                        response = item.serialize()
                         return make_response(jsonify(response)), 200
             else:
                 response = {
@@ -82,14 +67,7 @@ class itemApi(MethodView):
                                 intro=intro,
                                 owner=bucketlist_id)
                     item.save_item()
-                    response = {
-                        'id' : item.id,
-                        'owner' : item.owner,
-                        'date_created' : item.date_created,
-                        'date_updated' : item.date_updated,
-                        'title' : item.title,
-                        'intro' : item.intro
-                    }
+                    response = item.serialize()
                     return make_response(jsonify(response)), 201
             else:
                 response = {
@@ -124,14 +102,7 @@ class itemApi(MethodView):
                     item.title = title
                     item.intro = intro
                     item.save_item()
-                    response = {
-                        'id' : item.id,
-                        'owner' : item.owner,
-                        'date_created' : item.date_created,
-                        'date_updated' : item.date_updated,
-                        'title' : item.title,
-                        'intro' : item.intro
-                    }
+                    response = item.serialize()
                     return make_response(jsonify(response)), 200
             else:
                 response = {
