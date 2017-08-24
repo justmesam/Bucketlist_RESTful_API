@@ -10,9 +10,10 @@ class TestCaseBucketlist(TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
 
-        db_.session.close()
-        db_.drop_all()
-        db_.create_all()
+        with app.app_context():
+            db_.session.close()
+            db_.drop_all()
+            db_.create_all()
 
     def router(self, email, password, route):
         """method helps in testing the register function"""
