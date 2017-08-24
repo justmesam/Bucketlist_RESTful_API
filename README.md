@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/justmesam/Bucketlist_RESTful_API.svg?branch=master)](https://travis-ci.org/justmesam/Bucketlist_RESTful_API)
+[![Coverage Status](https://coveralls.io/repos/github/justmesam/Bucketlist_RESTful_API/badge.svg?branch=heroku-deploy)](https://coveralls.io/github/justmesam/Bucketlist_RESTful_API?branch=heroku-deploy)
 # Bucketlist RESTful API
 
 A RESTful API that lets you register, login, logout and reset password for users,   
@@ -19,7 +21,8 @@ Endpoint | Function
 /bucketlists/ | List all bucketlists
 /bucketlists/>id</| List a single bucketlists
 /bucketlists/>id</items/ | List all items of a specific bucketlist
-/bucketlists/>id< /items/ >item_id</ | List a single item  
+/bucketlists/>id< /items/ >item_id</ | List a single item
+/search/ | List all bucketlists found using a parameter search
 
 ## POST:
 
