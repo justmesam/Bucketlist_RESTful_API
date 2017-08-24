@@ -1,6 +1,6 @@
 import json
 from unittest import TestCase
-from app import app
+from app import app, db_
 
 class TestCaseBucketlist(TestCase):
     """
@@ -9,6 +9,10 @@ class TestCaseBucketlist(TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         self.app = app.test_client()
+
+        db_.session.close()
+        db_.drop_all()
+        db_.create_all()
 
     def router(self, email, password, route):
         """method helps in testing the register function"""
@@ -23,7 +27,6 @@ class TestCaseBucketlist(TestCase):
         Tests for creating the bucketlist
         """
         result = self.router('sammy1@gmail.com', '123456', 'register')
-        print(result.data)
         token = json.loads(result.data.decode())['token_']
 
         response = self.app.post(
@@ -41,7 +44,6 @@ class TestCaseBucketlist(TestCase):
         Tests for listing all users bucketlist
         """
         result = self.router('sammy@gmail.com', '123456', 'register')
-        print(result.data)
         token = json.loads(result.data.decode())['token_']
 
         response = self.app.post(
@@ -51,7 +53,6 @@ class TestCaseBucketlist(TestCase):
             content_type='application/json'
         )
         data = json.loads(response.data.decode())
-        print(data)
         self.assertTrue(data["id"])
 
         response = self.app.get(
@@ -62,3 +63,7 @@ class TestCaseBucketlist(TestCase):
         data = json.loads(response.data.decode())
         self.assertIsInstance(data, list)
         self.assertIn('travel', str(response.data))
+
+
+if __name__ == '__main__':
+    unittest.main()
