@@ -109,7 +109,7 @@ class BucketlistApi(MethodView):
             return make_response(jsonify(response)), 200
 
     @auth_required
-    def delete(self, _id):
+    def delete(self, _id, auth_data):
         """
         method used to delete a database using its id
         """

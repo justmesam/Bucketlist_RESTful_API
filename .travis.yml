@@ -1,0 +1,25 @@
+language: python
+python:
+  - "2.7"
+  - "3.6"
+  - "3.5"
+install:
+  - "pip install -r requirements.txt"
+  - "pip install coveralls"
+services:
+  - postgresql
+env:
+  global:
+    - export SECRET_KEY="\x86\x99\x13Q\xd3\xb56d\xcb\xbb4rf:\xf4W\xdf?\xe3\xb2\x06U\x1b\xe2"
+    - export APP_SETTINGS="config.DevelopmentConfig"
+    - export DATABASE_URL="postgresql://localhost/test_api"
+before_script:
+  - createdb test_api
+  - python manage.py db init
+  - python manage.py db migrate
+  - python manage.py db upgrade
+after_success:
+  coveralls
+script:
+- nosetests tests/
+- nosetests  --with-coverage --cover-package=app

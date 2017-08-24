@@ -2,9 +2,9 @@ import json
 from unittest import TestCase
 from app import app, db_
 
-class TestCaseBucketlist(TestCase):
+class TestCaseItem(TestCase):
     """
-    Testcases for the bucketlist
+    Testcases for the bucketlist items
     """
     def setUp(self):
         app.config['TESTING'] = True
@@ -23,106 +23,111 @@ class TestCaseBucketlist(TestCase):
                                             ),
                              content_type='application/json'
                             )
-    def test_bucketlist_creation(self):
-        """
-        Tests for creating the bucketlist
-        """
+    def bucketlist_id(self):
+        """helps in getting the bucketlists id"""
         result = self.router('sammy1@gmail.com', '123456', 'register')
         token = json.loads(result.data.decode())['token_']
-
         response = self.app.post(
             '/bucketlists/',
             headers=dict(Authorization='Bearer ' + token),
             data=json.dumps({'title' : 'travel', 'intro' : 'go to the moon'}),
             content_type='application/json'
         )
-        data = json.loads(response.data.decode())
-        self.assertTrue(data["intro"] == "go to the moon")
-        self.assertTrue(data["id"])
+        _id = json.loads(response.data.decode())['id']
+        return dict(_id=_id, token=token)
 
-    def test_list_all_bucketlists(self):
+    def test_item_creation(self):
         """
-        Tests for listing all users bucketlist
+        Tests for creating an item
         """
-        result = self.router('sammy@gmail.com', '123456', 'register')
-        token = json.loads(result.data.decode())['token_']
-
+        data = self.bucketlist_id()
         response = self.app.post(
-            '/bucketlists/',
-            headers=dict(Authorization='Bearer ' + token),
-            data=json.dumps({'title' : 'travel', 'intro' : 'go to the moon'}),
+            '/bucketlists/{}/items/'.format(data['_id']),
+            headers=dict(Authorization='Bearer ' + data['token']),
+            data=json.dumps({'title' : 'Adventure', 'intro' : 'sky diving'}),
             content_type='application/json'
         )
         data = json.loads(response.data.decode())
+        self.assertTrue(data["intro"] == "sky diving")
         self.assertTrue(data["id"])
+
+    def test_list_all_bucketlists_items(self):
+        """
+        Tests for listing all bucketlist items and pagination
+        """
+        data_ = self.bucketlist_id()
+        response = self.app.post(
+            '/bucketlists/{}/items/'.format(data_['_id']),
+            headers=dict(Authorization='Bearer ' + data_['token']),
+            data=json.dumps({'title' : 'Adventure', 'intro' : 'sky diving'}),
+            content_type='application/json'
+        )
+        data = json.loads(response.data.decode())
         self.assertTrue(response.status_code, 201)
 
         response = self.app.get(
-            '/bucketlists/',
-            headers=dict(Authorization='Bearer ' + token),
+            '/bucketlists/{}/items/'.format(data_['_id']),
+            headers=dict(Authorization='Bearer ' + data_['token']),
             content_type='application/json'
         )
         data = json.loads(response.data.decode())
         self.assertIsInstance(data, list)
-        self.assertIn('travel', str(response.data))
+        self.assertIn('Adventure', str(response.data))
 
         # test for pagination
         response = self.app.get(
-            '/bucketlists/?limit=2&page=1',
-            headers=dict(Authorization='Bearer ' + token),
+            '/bucketlists/{}/items/?limit=2&page=1'.format(data_['_id']),
+            headers=dict(Authorization='Bearer ' + data_['token']),
             content_type='application/json'
         )
         data = json.loads(response.data.decode())
         self.assertIsInstance(data, dict)
         self.assertIn('next_page', str(response.data))
-        self.assertIn('travel', str(response.data))
+        self.assertIn('sky diving', str(response.data))
         self.assertIn('previous_page', str(response.data))
 
     def test_get_update_and_delete(self):
         """
-        Tests for get, update and delete of a bucketlist using its id
+        Tests for get, update and delete of a bucketlist item using its id
         """
-        result = self.router('sammy@gmail.com', '123456', 'register')
-        token = json.loads(result.data.decode())['token_']
-
+        data_ = self.bucketlist_id()
         response = self.app.post(
-            '/bucketlists/',
-            headers=dict(Authorization='Bearer ' + token),
-            data=json.dumps({'title' : 'travel soon', 'intro' : 'go to the moon'}),
+            '/bucketlists/{}/items/'.format(data_['_id']),
+            headers=dict(Authorization='Bearer ' + data_['token']),
+            data=json.dumps({'title' : 'Adventure', 'intro' : 'sky diving'}),
             content_type='application/json'
         )
         self.assertTrue(response.status_code, 201)
-        _id = json.loads(response.data.decode())['id']
+        item_id = json.loads(response.data.decode())['id']
 
         response_update = self.app.put(
-            '/bucketlists/{}/'.format(_id),
-            headers=dict(Authorization='Bearer ' + token),
-            data=json.dumps({'title' : 'travel soon alone', 'intro' : 'go to the moon and saturn'}),
+            '/bucketlists/{}/items/{}/'.format(data_['_id'], item_id),
+            headers=dict(Authorization='Bearer ' + data_['token']),
+            data=json.dumps({'title' : 'Adventure and risks', 'intro' : 'sky diving and bungee jumping'}),
             content_type='application/json'
         )
         response_data = json.loads(response_update.data.decode())
-        self.assertTrue(response_data['title'] == 'travel soon alone')
-        self.assertTrue(response_data['intro'] == 'go to the moon and saturn')
+        self.assertTrue(response_data['title'] == 'Adventure and risks')
         self.assertTrue(response_data['id'])
-        self.assertTrue(response_update.status_code, 201)
+        self.assertTrue(response_update.status_code, 200)
 
         response = self.app.get(
-            '/bucketlists/{}/'.format(_id),
-            headers=dict(Authorization='Bearer ' + token),
+            '/bucketlists/{}/items/{}/'.format(data_['_id'], item_id),
+            headers=dict(Authorization='Bearer ' + data_['token']),
             content_type='application/json'
         )
         data = json.loads(response.data.decode())
         self.assertIsInstance(data, dict)
-        self.assertIn('travel soon alone', str(response.data))
+        self.assertIn('sky diving and bungee jumping', str(response.data))
 
         response = self.app.delete(
-            '/bucketlists/{}/'.format(_id),
-            headers=dict(Authorization='Bearer ' + token),
+            '/bucketlists/{}/items/{}/'.format(data_['_id'], item_id),
+            headers=dict(Authorization='Bearer ' + data_['token']),
             content_type='application/json'
         )
         data = json.loads(response.data.decode())
         self.assertIsInstance(data, dict)
-        self.assertIn('Bucketlist deleted', str(response.data))
+        self.assertIn('item deleted', str(response.data))
 
 
 if __name__ == '__main__':

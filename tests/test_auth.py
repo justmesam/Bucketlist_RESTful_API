@@ -3,7 +3,7 @@ All tests are here
 """
 import json
 from unittest import TestCase
-from app import app
+from app import app, db_
 
 class TestCaseAuth(TestCase):
     """
@@ -13,10 +13,14 @@ class TestCaseAuth(TestCase):
         app.config['TESTING'] = True
         self.app = app.test_client()
 
+        with app.app_context():
+            db_.session.close()
+            db_.drop_all()
+            db_.create_all()
 
         ###>>>> |||  Helper Method ||| <<<<###
     def router(self, email, password, route):
-        """method helps in testing the register function"""
+        """method helps in testing the routes functions"""
         return self.app.post('/auth/' + route + '/',
                              data=json.dumps(dict(email=email,
                                                   password=password)
@@ -39,12 +43,10 @@ class TestCaseAuth(TestCase):
         Tests a user cannot be registered more than once
         """
         result = self.router('sam@email.com', '12345', 'register')
-        print(result.data)
         data = json.loads(result.data.decode())
         self.assertTrue(data['message'] == 'You have been successfuly registered')
         self.assertTrue(result.status_code, 201)
         result2 = self.router('sam@email.com', '12345', 'register')
-        print(result2.data)
         data = json.loads(result2.data.decode())
         self.assertTrue(result2.status_code, 202)
         self.assertTrue(data['message'] == 'Email exists')
@@ -97,11 +99,12 @@ class TestCaseAuth(TestCase):
         """
         Tests when user resets password
         """
+        self.router('samuel1@email.com', '012345', 'register')
         result = self.router('samuel1@email.com', '0', 'reset_password')
         data = json.loads(result.data.decode())
-        print(data)
         self.assertTrue(result.status_code, 200)
-        self.assertTrue(data['message'] == 'Your password has been reset successfuly, you can change to a new password')
+        self.assertTrue(data['message'] == 'Your password has been '\
+            'reset successfuly, you can change to a new password')
         self.assertTrue(data['new_password'])
 
     def test_change_password(self):
