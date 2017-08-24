@@ -15,6 +15,9 @@ env:
     - export DATABASE_URL="postgresql://localhost/test_api"
 before_script:
   - createdb test_api
+  - python manage.py db init
+  - python manage.py db migrate
+  - python manage.py db upgrade
 after_success:
   coveralls
 script:
