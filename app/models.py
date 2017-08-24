@@ -39,7 +39,7 @@ class User(db_.Model):
         db_.session.add(self)
         db_.session.commit()
 
-    def token_encoding(self, _id):
+    def token_encoding(self, user_id):
         """
         Generates the token_
         :return:string
@@ -48,7 +48,7 @@ class User(db_.Model):
             payload = {'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0,
                                                                               hours=1),
                        'iat': datetime.datetime.utcnow(),
-                       'sub': _id
+                       'sub': user_id
                       }
             return jwt.encode(payload,
                               current_app.config.get('SECRET_KEY'),
@@ -107,8 +107,7 @@ class Bucketlist(db_.Model):
         method used for querying all the bucketlists from the database using an
         owner id
         """
-        all_bucketlists = Bucketlist.query.filter_by(owner=owner_id)
-        return all_bucketlists
+        return Bucketlist.query.filter_by(owner=owner_id).all()
 
     def delete(self):
         """
@@ -185,8 +184,7 @@ class Item(db_.Model):
         """
         method used to query all items from the database using the owners id
         """
-        all_items = Item.query.filter_by(owner=owner_id)
-        return all_items
+        return Item.query.filter_by(owner=owner_id).all()
 
     def save_item(self):
         """
