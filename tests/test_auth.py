@@ -20,7 +20,7 @@ class TestCaseAuth(TestCase):
 
         ###>>>> |||  Helper Method ||| <<<<###
     def router(self, email, password, route):
-        """method helps in testing the register function"""
+        """method helps in testing the routes functions"""
         return self.app.post('/auth/' + route + '/',
                              data=json.dumps(dict(email=email,
                                                   password=password)
@@ -102,7 +102,6 @@ class TestCaseAuth(TestCase):
         self.router('samuel1@email.com', '012345', 'register')
         result = self.router('samuel1@email.com', '0', 'reset_password')
         data = json.loads(result.data.decode())
-        print(data)
         self.assertTrue(result.status_code, 200)
         self.assertTrue(data['message'] == 'Your password has been '\
             'reset successfuly, you can change to a new password')
