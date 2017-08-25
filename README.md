@@ -2,6 +2,10 @@
 [![Coverage Status](https://coveralls.io/repos/github/justmesam/Bucketlist_RESTful_API/badge.svg?branch=heroku-deploy)](https://coveralls.io/github/justmesam/Bucketlist_RESTful_API?branch=heroku-deploy)
 # Bucketlist RESTful API
 
+#### API Documentation
+
+http://docs.labucketlist.apiary.io/ [The Documentation][3]   
+
 A RESTful API that lets you register, login, logout and reset password for users,   
  create, read, update and delete a bucketlist and/or its items.   
 
@@ -92,3 +96,4 @@ You can test on postman or use curl.
 
 [1]: [http://flask.pocoo.org/]
 [2]: [https://www.postgresql.org/]
+[3]: [http://docs.labucketlist.apiary.io/#reference]
