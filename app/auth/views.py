@@ -23,7 +23,7 @@ class Register(MethodView):
                 response = {
                     'message' : 'Email exists'
                 }
-                return make_response(jsonify(response)), 202
+                return make_response(jsonify(response)), 401
             else:
                 user = User(data_['email'],
                             data_['password'])
@@ -31,6 +31,7 @@ class Register(MethodView):
                 token_ = user.token_encoding(user.id)
                 if token_:
                     response = {
+                        'user' : data_.get('email'),
                         'message' : 'You have been successfuly registered',
                         'token_' : token_.decode()
                     }
@@ -61,6 +62,7 @@ class Login(MethodView):
                 token_ = user.token_encoding(user.id)
                 if token_:
                     response = {
+                        'user' : data_.get('email'),
                         'message' : 'Successful Login',
                         'token_' : token_.decode()
                     }

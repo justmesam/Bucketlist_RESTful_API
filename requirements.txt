@@ -3,9 +3,12 @@ astroid==1.5.3
 click==6.7
 coverage==4.4.1
 Flask==0.12.2
+Flask-Cors==3.0.3
+flask-heroku==0.1.9
 Flask-Migrate==2.1.0
 Flask-Script==2.0.5
 Flask-SQLAlchemy==2.2
+gunicorn==19.7.1
 isort==4.2.15
 itsdangerous==0.24
 Jinja2==2.9.6
@@ -19,7 +22,7 @@ PyJWT==1.5.2
 pylint==1.7.2
 python-dateutil==2.6.1
 python-editor==1.0.3
-six==1.10.0
+six==1.11.0
 SQLAlchemy==1.1.13
 Werkzeug==0.12.2
 wrapt==1.10.11
