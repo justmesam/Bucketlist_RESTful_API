@@ -23,11 +23,10 @@ class itemApi(MethodView):
                     response = {
                         'message' : 'No items for this user yet'
                     }
-                    return make_response(jsonify(response)), 404
+                    return make_response(jsonify(response=response,
+                                                 all_items=[])), 404
                 else:
-                    all_items = []
-                    for item in items:
-                        all_items.append(item.serialize())
+                    all_items = [item.serialize() for item in items]
                     return make_response(jsonify(all_items)), 200
             else:
                 item = Item.query.filter_by(id=_id).first()
@@ -117,6 +116,7 @@ class itemApi(MethodView):
         method used to delete a database using its id
         """
         item = Item.query.filter_by(owner=bucketlist_id, id=_id).first()
+        item_id = _id
         if not item:
             response = {
                 'message' : 'item not available'
@@ -127,7 +127,9 @@ class itemApi(MethodView):
             response = {
                 'message' : 'item deleted'
             }
-            return make_response(jsonify(response)), 200
+            print(">>>>>>>   ", item_id)
+            return make_response(jsonify(response=response, item=item_id)), 200
+
 
 
 item_view = itemApi.as_view('item_api')

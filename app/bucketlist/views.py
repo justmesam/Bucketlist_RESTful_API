@@ -50,12 +50,14 @@ class BucketlistApi(MethodView):
             if all_bucketlists:
                 next_page = ''
                 previous_page = ''
+                pages = limited_bucketlists.pages
+                current_page = limited_bucketlists.page
                 def url_for_other_page(page):
                     """
                     generates url for the next and prev page of pagination
                     """
                     args = request.view_args.copy()
-                    args['page'] = page
+                    args['page'] = pages
                     return url_for(request.endpoint, **args)
                 if limited_bucketlists.has_next:
                     next_page = 'http://127.0.0.1:5000/' +\
@@ -69,7 +71,9 @@ class BucketlistApi(MethodView):
                 }
                 return make_response(jsonify(response)), 404
             return make_response(jsonify(bucketlists=all_bucketlists,
+                                         pages=pages,
                                          next_page=next_page,
+                                         current_page=current_page,
                                          previous_page=previous_page)), 200
 
     @auth_required
@@ -80,13 +84,18 @@ class BucketlistApi(MethodView):
         title = request.get_json().get('title')
         intro = request.get_json().get('intro')
         bucketlist_ = Bucketlist.query.filter_by(title=title).first()
-        if intro and title:
+        if intro.strip() and title.strip():
             bucketlist = Bucketlist(title=title,
                                     intro=intro,
                                     owner=auth_data)
             bucketlist.save_bucketlist()
             response = bucketlist.serialize()
             return make_response(jsonify(response)), 201
+        else:
+            response = {
+                'message' : 'You cant post empty bucketlist'
+            }
+            return make_response(jsonify(response)), 404
 
     @auth_required
     def put(self, _id, auth_data):
@@ -114,6 +123,7 @@ class BucketlistApi(MethodView):
         method used to delete a database using its id
         """
         bucketlist = Bucketlist.query.filter_by(id=_id).first()
+        bucketlistid = _id
         if not bucketlist:
             response = {
                 'message' : 'Bucketlist not available'
@@ -124,7 +134,7 @@ class BucketlistApi(MethodView):
             response = {
                 'message' : 'Bucketlist deleted'
             }
-            return make_response(jsonify(response)), 200
+            return make_response(jsonify(bucketlist=bucketlistid, response=response)), 200
 
 
 bucket_view = BucketlistApi.as_view('bucketlist_api')
